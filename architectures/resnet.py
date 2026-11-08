@@ -1,13 +1,5 @@
 import torch
 import torch.nn as nn
-import torchvision
-import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
-import torch.optim.lr_scheduler as lr_scheduler
-from torchvision.transforms import v2
-from torchvision.io import decode_image
-
-import matplotlib.pyplot as plt
 
 class ResidualUnit(nn.Module):
   def __init__(self, in_channels: int, planes: int, stride: int = 1, bottleneck=True):
