@@ -10,15 +10,12 @@ STATS = {
 DATASETS = {
     "cifar10": datasets.CIFAR10,
     "cifar100": datasets.CIFAR100,
-    "imagenet": datasets.ImageNet
 }
 
 
 def load_dataset(name, batch_size, method, data_dir="./data", num_workers=2, pin_memory=False):
     if name not in DATASETS:
         raise ValueError(f"Unknown dataset: {name}")
-    if method not in ("supervised", "rotnet"):
-        raise ValueError(f"Unknown method: {method}")
 
     mean, std = STATS[name]
     operations = []

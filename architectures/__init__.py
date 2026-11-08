@@ -1,11 +1,13 @@
-from .resnet import ResNet
-from .preactresnet import PreActResNet
-from .densenet import DenseNet
+from .resnet import resnet18, resnet50
+from .preactresnet import preactresnet18, preactresnet50
+from .densenet import densenet121
 
 ARCHITECTURES = {
-    "resnet": ResNet,
-    "preactresnet": PreActResNet,
-    "densenet": DenseNet,
+    "resnet18": resnet18,
+    "resnet50": resnet50,
+    "preactresnet18": preactresnet18,
+    "preactresnet50": preactresnet50,
+    "densenet121": densenet121,
 }
 
 def load_arch(name):

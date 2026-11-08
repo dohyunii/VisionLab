@@ -1,18 +1,19 @@
 import argparse
 import json
+import math
 from datetime import datetime
 from pathlib import Path
 import torch
-from architectures import load_arch
-from datasets import load_dataset
+from architectures import ARCHITECTURES, load_arch
+from datasets import DATASETS, load_dataset
 from methods import load_method
 from utils import set_seed
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Modular computer-vision training")
-    parser.add_argument("--dataset", choices=["cifar10", "cifar100", "imagenet"], default="cifar10")
-    parser.add_argument("--arch", choices=["resnet", "preactresnet", "densenet"])
+    parser.add_argument("--dataset", choices=sorted(DATASETS), default="cifar10")
+    parser.add_argument("--arch", choices=sorted(ARCHITECTURES), required=True)
     parser.add_argument("--method", choices=["supervised"], default="supervised")
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--epochs", type=int, default=100)
@@ -55,6 +56,12 @@ def main(args):
         weight_decay=args.weight_decay,
     )
 
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        optimizer,
+        milestones=[int(args.epochs * 0.5), int(args.epochs * 0.75)],
+        gamma=0.1
+    )
+
     run_name = (
         f"{args.dataset}_{args.arch}_{args.method}_"
         f"{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
@@ -79,6 +86,7 @@ def main(args):
             size = images.size(0)
             total_loss += loss.item() * size
             total_samples += size
+        scheduler.step()
 
         mean_loss = total_loss / total_samples
         print(f"Epoch {epoch}/{args.epochs}: train_loss={mean_loss:.4f}")
@@ -87,6 +95,7 @@ def main(args):
             {
                 "epoch": epoch,
                 "method_state_dict": method.state_dict(),
+                "scheduler_state_dict": scheduler.state_dict(),
                 "optimizer_state_dict": optimizer.state_dict(),
                 "config": vars(args),
             },

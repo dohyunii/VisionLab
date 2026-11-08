@@ -41,7 +41,7 @@ class PreActResidualUnit(nn.Module):
     return identity + out
 
 class PreActResNet(nn.Sequential):
-  def __init__(self, layers: list, stage_planes=(64, 128, 256, 512), stem_channels=64, stem_kernel=7, stem_stride=2, max_pool=True, bottleneck=True, num_classes=1000):
+  def __init__(self, layers: list, stage_planes=(64, 128, 256, 512), stem_channels=64, stem_kernel=7, stem_stride=2, max_pool=True, bottleneck=True):
     super().__init__()
 
     self.bottleneck = bottleneck
@@ -62,7 +62,7 @@ class PreActResNet(nn.Sequential):
 
     self.avgpool = nn.AdaptiveAvgPool2d(1)
     self.flatten = nn.Flatten(1)
-    self.fc = nn.Linear(self.in_channels, num_classes)
+    self.feature_dim = self.in_channels
 
   def make_stage(self, planes, n_blocks, stride):
     expansion = 4 if self.bottleneck else 1
@@ -75,3 +75,15 @@ class PreActResNet(nn.Sequential):
       blocks.append(PreActResidualUnit(out_channels, planes, stride=1, bottleneck=self.bottleneck))
 
     return nn.Sequential(*blocks)
+
+def preactresnet18():
+    return PreActResNet(
+        layers=[2, 2, 2, 2], bottleneck=False,
+        stem_kernel=3, stem_stride=1, max_pool=False,
+    )
+
+def preactresnet50():
+    return PreActResNet(
+        layers=[3, 4, 6, 3], bottleneck=True,
+        stem_kernel=3, stem_stride=1, max_pool=False,
+    )

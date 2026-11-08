@@ -36,7 +36,7 @@ class DenseBlock(nn.Module):
 class DenseNet(nn.Sequential):
   def __init__(self, layers: list, growth_rate: int = 16,
                stem_channels=32, stem_kernel=7, stem_stride=2, max_pool=True,
-               bottleneck=True, compression_factor: float = 1.0, num_classes=1000):
+               bottleneck=True, compression_factor: float = 1.0):
     super().__init__()
 
     self.in_channels = stem_channels
@@ -65,10 +65,23 @@ class DenseNet(nn.Sequential):
         ))
         self.in_channels = out_channels
 
-    self.classification = nn.Sequential(
-        nn.BatchNorm2d(self.in_channels), # ?
-        nn.ReLU(inplace=True), # ?
+    self.features = nn.Sequential(
+        nn.BatchNorm2d(self.in_channels),
+        nn.ReLU(inplace=True),
         nn.AdaptiveAvgPool2d(1),
         nn.Flatten(1),
-        nn.Linear(self.in_channels, num_classes)
+    )
+    self.feature_dim = self.in_channels
+
+
+def densenet121():
+    return DenseNet(
+        layers=[6, 12, 24, 16],
+        growth_rate=32,
+        stem_channels=64,
+        stem_kernel=3,
+        stem_stride=1,
+        max_pool=False,
+        bottleneck=True,
+        compression_factor=0.5,
     )
