@@ -16,16 +16,16 @@ class PreActResidualUnit(nn.Module):
     )
 
     if bottleneck:
-      self.conv1 = nn.Conv2d(in_channels, planes, 1, stride=stride, bias=False)
-      self.bn2 = nn.BatchNorm2d(planes)
-      self.conv2 = nn.Conv2d(planes, planes, 3, padding=1, bias=False)
-      self.bn3 = nn.BatchNorm2d(planes)
-      self.conv3 = nn.Conv2d(planes, out_channels, 1, bias=False)
+        self.conv1 = nn.Conv2d(in_channels, planes, 1, stride=stride, bias=False)
+        self.bn2 = nn.BatchNorm2d(planes)
+        self.conv2 = nn.Conv2d(planes, planes, 3, padding=1, bias=False)
+        self.bn3 = nn.BatchNorm2d(planes)
+        self.conv3 = nn.Conv2d(planes, out_channels, 1, bias=False)
     else:
-      self.conv1 = nn.Conv2d(in_channels, planes, 3, stride=stride, padding=1, bias=False)
-      self.bn2 = nn.BatchNorm2d(planes)
-      self.conv2 = nn.Conv2d(planes, out_channels, 3, padding=1, bias=False)
-      self.conv3 = None
+        self.conv1 = nn.Conv2d(in_channels, planes, 3, stride=stride, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(planes)
+        self.conv2 = nn.Conv2d(planes, out_channels, 3, padding=1, bias=False)
+        self.conv3 = None
 
   def forward(self, x):
     preact = self.relu(self.bn1(x))

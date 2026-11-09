@@ -6,13 +6,13 @@ class DenseLayer(nn.Sequential):
     if bottleneck:
       expansion = growth_rate * 4
       super().__init__(
-          nn.BatchNorm2d(in_channels),
-          nn.ReLU(inplace=True),
-          nn.Conv2d(in_channels, expansion, kernel_size=1, padding=0, bias=False),
+        nn.BatchNorm2d(in_channels),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(in_channels, expansion, kernel_size=1, padding=0, bias=False),
 
-          nn.BatchNorm2d(expansion),
-          nn.ReLU(inplace=True),
-          nn.Conv2d(expansion, growth_rate, kernel_size=3, padding=1, bias=False)
+        nn.BatchNorm2d(expansion),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(expansion, growth_rate, kernel_size=3, padding=1, bias=False)
       )
     else:
       super().__init__(
