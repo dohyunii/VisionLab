@@ -11,7 +11,10 @@ class Supervised(nn.Module):
     def forward(self, images):
         return self.head(self.backbone(images))
 
-    def training_step(self, batch):
+    def training_step(self, batch, return_logits=False):
         images, labels = batch
         logits = self(images)
-        return F.cross_entropy(logits, labels)
+        loss = F.cross_entropy(logits, labels)
+        if return_logits:
+            return loss, logits.detach()
+        return loss
