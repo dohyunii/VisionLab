@@ -115,7 +115,10 @@ def main(args):
         history.append(epoch_metrics)
         with history_path.open("a", newline="", encoding="utf-8") as history_file:
             csv.DictWriter(history_file, fieldnames=history_fields).writerow(epoch_metrics)
-        save_training_curves(history, run_dir / "training_curves.png")
+        save_training_curves(
+            history, run_dir / "training_curves.png",
+            title=f"{args.arch} · {args.dataset.upper()} · {args.method.capitalize()}",
+        )
         print(
             f"Epoch {epoch}/{args.epochs}: train_loss={mean_loss:.4f} "
             f"train_accuracy={accuracy:.2%} lr={learning_rate:g}"
