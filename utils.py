@@ -17,10 +17,10 @@ def save_training_curves(history, path):
     FigureCanvasAgg(figure)
     loss_axis, accuracy_axis = figure.subplots(1, 2)
     epochs = [row["epoch"] for row in history]
-    loss_axis.plot(epochs, [row["train_loss"] for row in history], marker="o")
+    loss_axis.plot(epochs, [row["train_loss"] for row in history], linewidth=1.5)
     loss_axis.set(xlabel="Epoch", ylabel="Loss", title="Training loss")
     accuracy_axis.plot(
-        epochs, [100 * row["train_accuracy"] for row in history], marker="o"
+        epochs, [100 * row["train_accuracy"] for row in history], linewidth=1.5
     )
     accuracy_axis.set(
         xlabel="Epoch", ylabel="Accuracy (%)", title="Training accuracy", ylim=(0, 100)
