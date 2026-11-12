@@ -16,6 +16,9 @@ def parse_args():
     parser.add_argument("--dataset", choices=sorted(DATASETS), default="cifar10")
     parser.add_argument("--arch", choices=sorted(ARCHITECTURES), required=True)
     parser.add_argument("--method", choices=["supervised"], default="supervised")
+    parser.add_argument("--head", choices=["linear", "mlp"], default="linear")
+    parser.add_argument("--head_hidden_dim", type=int, default=None)
+    parser.add_argument("--head_activation", choices=["tanh", "gelu", "relu"], default="relu")
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--lr", type=float, default=0.1)
@@ -54,6 +57,9 @@ def main(args):
         backbone=backbone,
         feature_dim=feature_dim,
         num_classes=num_classes,
+        head=args.head,
+        head_hidden_dim=args.head_hidden_dim,
+        head_activation=args.head_activation,
     ).to(device)
 
     optimizer = torch.optim.SGD(

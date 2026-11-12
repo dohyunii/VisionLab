@@ -53,8 +53,7 @@ class PreActResNet(nn.Sequential):
     )
     self.stages = nn.Sequential(*[
         self.make_stage(planes, n_blocks, stride=1 if idx == 0 else 2)
-        for idx, (planes, n_blocks)
-        in enumerate(zip(stage_planes, layers))
+        for idx, (planes, n_blocks) in enumerate(zip(stage_planes, layers))
     ])
 
     self.bn = nn.BatchNorm2d(self.in_channels)
