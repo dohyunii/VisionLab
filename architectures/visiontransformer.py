@@ -1,35 +1,27 @@
 import torch
 import torch.nn as nn
 
-class SelfAttention(nn.Module):
-    def __init__(self, D, d_h):
-        super().__init__()
-        self.W_Q = nn.Parameter(torch.randn(D, d_h))
-        self.W_K = nn.Parameter(torch.randn(D, d_h))
-        self.W_V = nn.Parameter(torch.randn(D, d_h))
-        self.scale = d_h**0.5
-    
-    def forward(self, x):
-        Q = torch.matmul(x, self.W_Q)
-        K = torch.matmul(x, self.W_K)
-        V = torch.matmul(x, self.W_V)
-        score = torch.softmax(torch.matmul(Q, torch.transpose(K, 1, 2)) / self.scale, dim=2)
-        return torch.matmul(score, V)
-        
 class MultiHeadAttention(nn.Module):
     def __init__(self, D, h):
         super().__init__()
-        self.self_attentions = nn.ModuleList([
-            SelfAttention(D, D // h)
-            for i in range(h)
-        ])
+        self.D = D
+        self.h = h
+        self.U_qkv = nn.Parameter(torch.randn(D, 3 * D))
+        self.d_h = D // h
+        self.scale = self.d_h**0.5
         self.linear = nn.Linear(D, D)
     
     def forward(self, x):
-        multi_head_attention = []
-        for self_attention in self.self_attentions:
-            multi_head_attention.append(self_attention(x))
-        multi_head_attention = torch.cat(multi_head_attention, dim=2)
+        B = x.size(0)
+        N = x.size(1)
+        x = x @ self.U_qkv
+        Q, K, V = torch.split(x, self.D, dim=2)
+        Q = torch.transpose(torch.reshape(Q, (B, N, self.h, self.d_h)), 1, 2)
+        K = torch.transpose(torch.reshape(K, (B, N, self.h, self.d_h)), 1, 2)
+        V = torch.transpose(torch.reshape(V, (B, N, self.h, self.d_h)), 1, 2)
+        score = torch.softmax(torch.matmul(Q, torch.transpose(K, 2, 3)) / self.scale, dim=-1)
+        multi_head_attention = torch.matmul(score, V)
+        multi_head_attention = torch.reshape(torch.transpose(multi_head_attention, 1, 2), (B, N, self.D))
         return self.linear(multi_head_attention)
 
 class TransformerBlock(nn.Module):
