@@ -4,6 +4,7 @@ from .densenet import densenet121
 from .fractalnet import fractalnet20, fractalnet40
 from .visiontransformer import vit_b_4, vit_b_16, vit_l_32
 from .mlpmixer import mlpmixer_s_4, mlpmixer_b_16, mlpmixer_l_32
+from .custommlpmixer import mlpmixer_s_4 as custommlpmixer_s_4
 
 ARCHITECTURES = {
     "resnet18": resnet18,
@@ -17,6 +18,7 @@ ARCHITECTURES = {
     "vitB16": vit_b_16,
     "vitL32": vit_l_32,
     "mlpmixerS4": mlpmixer_s_4,
+    "custommlpmixerS4": custommlpmixer_s_4,
     "mlpmixerB16": mlpmixer_b_16,
     "mlpmixerL32": mlpmixer_l_32,
 }

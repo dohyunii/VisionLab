@@ -70,3 +70,83 @@ is computed.
 The Colab command above stores both the shared dataset and experiment outputs
 in Google Drive. The latest checkpoint is overwritten each epoch; training
 resumption is not implemented yet.
+
+## Mixer comparison
+
+`compare_mixers.py` compares the standard Mixer (a skip around each mixing MLP)
+with the custom Mixer (one skip around both mixing MLPs). The hypothesis is that
+coupling the two mixing operations may change generalization and convergence;
+the script does not assume either design is better.
+
+The full experiment uses your CIFAR S/4 configuration for both: 8 blocks,
+embedding width 256, token MLP width 128, channel MLP width 1024, and a linear
+10-class classifier. Each seed starts both variants with identical weights,
+verified by a saved SHA-256 fingerprint, and identical parameter counts.
+
+Shared settings:
+
+- CIFAR-10: 45,000 training images, 5,000 validation images; split seed 42.
+- Training augmentation: random crop with padding 4 and horizontal flip.
+- Validation/test: tensor conversion and normalization only, using separate
+  dataset instances so validation never inherits random training transforms.
+- AdamW, learning rate 0.0003, weight decay 0.01, batch size 128, 100 epochs.
+- Learning rate multiplied by 0.1 after 50% and 75% of the epochs; no warmup.
+- Paired training seeds 42, 43, and 44, with matched shuffle and augmentation RNGs.
+- Best epoch selected using validation accuracy; its checkpoint is evaluated
+  once on the official test set. Do not tune settings against these test scores.
+
+This is a controlled baseline experiment, not a paper-reproduction recipe or
+an optimized hyperparameter search. Seeds do not guarantee bitwise equality
+across different devices or software versions.
+
+Run this in Colab after installing dependencies and mounting Drive:
+
+```python
+!python -u compare_mixers.py \
+    --data_dir /content/drive/MyDrive/VisionLab-data \
+    --save_dir /content/drive/MyDrive/VisionLab-runs/mixer-comparison \
+    --epochs 100 --seeds 42 43 44
+```
+
+This runs six training trials sequentially. It downloads CIFAR-10 only if the
+shared cache is missing. Existing `main.py` training behavior is unchanged;
+held-out evaluation is specific to this comparison script.
+
+For a short execution check with synthetic data, smaller models, and no downloads:
+
+```bash
+python compare_mixers.py --smoke_test
+```
+
+The smoke test is explicitly labeled synthetic and provides no model-quality
+evidence. It forces two epochs, one seed, batch size 4, and zero loader workers.
+
+Each timestamped experiment contains:
+
+```text
+experiment.json             # Settings, device, and fixed validation indices
+results.csv                 # One row per variant/seed
+summary.json                # Test accuracy mean, sample SD, paired differences
+comparison.png              # Validation curves: mean +/- sample SD across seeds
+original_seed42/            # Similar folder for each variant/seed
+    config.json             # Initial-weight fingerprint and parameter count
+    history.csv             # Train/validation loss and accuracy, LR, train seconds
+    training_curves.png
+    best.pt                 # Validation-selected checkpoint
+    result.json
+```
+
+Interpret positive `single_skip_minus_original_percentage_points` as higher
+test accuracy for the custom model for that seed. Check whether differences
+repeat across seeds and compare them with run-to-run variation; three seeds
+alone do not establish statistical significance. Compare validation curves for
+convergence/overfitting. Recorded train times include data loading and warmup
+effects, so they are not a dedicated GPU performance benchmark. Resume support
+is not included; per-trial histories and best checkpoints survive interruptions.
+
+Implementation guide: `build_datasets()` creates the held-out split,
+`build_loaders()` seeds each trial's data stream, `evaluate()` calculates
+sample-weighted classification metrics without gradients, `train_trial()`
+trains/selects/tests one model, and `save_comparison()` aggregates the paired
+results and plots. The custom backbone is also available through `main.py` as
+`--arch custommlpmixerS4`.
