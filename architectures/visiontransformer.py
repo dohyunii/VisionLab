@@ -94,7 +94,19 @@ class VisionTransformer(nn.Module):
         return z[:, 0]
 
 
-def vit_b_16(H=32, W=32):
+def vit_b_4(H=32, W=32):
+    return VisionTransformer(
+        in_channels=3,
+        patch_size=4,
+        head_number=12,
+        hidden_layer=3072,
+        n_layer=12,
+        latent_vector_size=768,
+        H=H, W=W
+    )
+
+
+def vit_b_16(H=224, W=224):
     return VisionTransformer(
         in_channels=3,
         patch_size=16,
@@ -102,11 +114,10 @@ def vit_b_16(H=32, W=32):
         hidden_layer=3072,
         n_layer=12,
         latent_vector_size=768,
-        H=H,
-        W=W
+        H=H, W=W
     )
 
-def vit_l_32(H=32, W=32):
+def vit_l_32(H=224, W=224):
     return VisionTransformer(
         in_channels=3,
         patch_size=32,
@@ -114,6 +125,5 @@ def vit_l_32(H=32, W=32):
         hidden_layer=4096,
         n_layer=24,
         latent_vector_size=1024,
-        H=H,
-        W=W
+        H=H, W=W
     )
