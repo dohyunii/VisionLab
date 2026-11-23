@@ -9,6 +9,20 @@ python main.py --dataset cifar10 --arch resnet50 --method supervised --epochs 10
 python main.py --help
 ```
 
+## Optimizers
+
+Select `--optimizer sgd` (the default) or `--optimizer adamw`.
+Both use `--lr` and `--weight_decay`; `--momentum` applies only to SGD.
+AdamW uses PyTorch's default betas `(0.9, 0.999)` and epsilon `1e-8`.
+The default learning rate is still `0.1`, so set it explicitly for AdamW:
+
+```bash
+python main.py --arch mlpmixerS4 --head linear --optimizer adamw --lr 0.0003 --weight_decay 0.01
+```
+
+Optimizer selection is saved in `config.json` and the checkpoint configuration.
+The existing milestone learning-rate schedule applies to either optimizer.
+
 ## Google Colab
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dohyunii/VisionLab/blob/main/colab.ipynb)

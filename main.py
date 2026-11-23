@@ -21,9 +21,10 @@ def parse_args():
     parser.add_argument("--head_activation", choices=["tanh", "gelu", "relu"], default="relu")
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--optimizer", choices=["sgd", "adamw"], default="sgd")
     parser.add_argument("--lr", type=float, default=0.1)
     parser.add_argument("--momentum", type=float, default=0.9)
-    parser.add_argument("--weight_decay", type=float, default=1e-4)
+    parser.add_argument("--weight_decay", type=float, default=1e-2)
     parser.add_argument("--num_workers", type=int, default=2)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
@@ -62,12 +63,19 @@ def main(args):
         head_activation=args.head_activation,
     ).to(device)
 
-    optimizer = torch.optim.SGD(
-        method.parameters(),
-        lr=args.lr,
-        momentum=args.momentum,
-        weight_decay=args.weight_decay,
-    )
+    if args.optimizer == "adamw":
+        optimizer = torch.optim.AdamW(
+            method.parameters(),
+            lr=args.lr,
+            weight_decay=args.weight_decay,
+        )
+    else:
+        optimizer = torch.optim.SGD(
+            method.parameters(),
+            lr=args.lr,
+            momentum=args.momentum,
+            weight_decay=args.weight_decay,
+        )
 
     scheduler = torch.optim.lr_scheduler.MultiStepLR(
         optimizer,
