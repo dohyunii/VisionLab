@@ -6,7 +6,8 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
         self.D = D
         self.h = h
-        self.U_qkv = nn.Parameter(torch.randn(D, 3 * D))
+        self.U_qkv = nn.Parameter(torch.empty(D, 3 * D))
+        nn.init.xavier_uniform_(self.U_qkv)
         self.d_h = D // h
         self.scale = self.d_h**0.5
         self.linear = nn.Linear(D, D)
