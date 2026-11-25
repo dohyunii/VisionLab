@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+
 class MixerLayer(nn.Module):
     def __init__(self, S, C, D_c, D_s):
         super().__init__()
